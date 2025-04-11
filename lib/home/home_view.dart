@@ -38,6 +38,7 @@ class CheckNetButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final data = 'Check My Network';
     return ElevatedButton(
       onPressed: () {
         Navigator.push(
@@ -45,9 +46,12 @@ class CheckNetButton extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const CheckNetPage()),
         );
       },
-      child: const Text(
-        'Check My Network',
-        style: TextStyle(color: Colors.black),
+      child: Text(
+        data,
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

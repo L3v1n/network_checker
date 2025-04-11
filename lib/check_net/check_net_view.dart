@@ -18,18 +18,21 @@ class _CheckNetViewState extends State<CheckNetView> {
       body: SafeArea(
         child: BlocBuilder<NetworkCheckBloc, NetworkCheckState>(
           builder: (context, state) {
-            return Stack(
+            return Column(
               children: [
-                Center(
+                Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildNetworkStatusWidget(state),
-                      const SizedBox(height: 24),
-                      // Show appropriate button based on state
-                      _buildActionButton(state, context),
+                      Center(
+                        child: _buildNetworkStatusWidget(state)
+                      ),
                     ],
                   ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildActionButton(state, context),
                 ),
               ],
             );
@@ -42,30 +45,18 @@ class _CheckNetViewState extends State<CheckNetView> {
 
 Widget _buildActionButton(NetworkCheckState state, BuildContext context) {
   if (state == NetworkCheckState.initial) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: CancelButton(),
-    );
+    return CancelButton();
   } 
   else if (state == NetworkCheckState.noConnection) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: RetryButton(),
-    );
+    return RetryButton();
   }
   else if (state == NetworkCheckState.connectedWifi || 
             state == NetworkCheckState.connectedMobile || 
             state == NetworkCheckState.internetAccessAvailable) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: RecheckButton(),
-    );
+    return RecheckButton();
   }
   else {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: RetryButton(),
-    );
+    return RetryButton();
   }
 }
 
@@ -119,7 +110,7 @@ Widget _buildNetworkStatusWidget(NetworkCheckState state) {
         message,
         style: TextStyle(
           fontSize: 18,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.bold,
           color: color,
         ),
       ),
@@ -139,7 +130,9 @@ class ProgressIndicator extends StatelessWidget {
         const SizedBox(height: 16),
         Text(
           check, 
-          style: TextStyle(fontSize: 16),
+          style: TextStyle(fontSize: 16,
+          fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
@@ -158,8 +151,8 @@ class RetryButton extends StatelessWidget {
           context.read<NetworkCheckBloc>().add(CheckNetworkEvent());
         },
         style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Colors.black),
-          foregroundColor: Colors.black,
+          side: BorderSide(color: Colors.grey),
+          foregroundColor: Colors.grey,
         ),
         child: Text(
           retry,
