@@ -32,18 +32,18 @@ class NetworkCheckBloc extends Bloc<NetworkCheckEvent, NetworkCheckState> {
     Emitter<NetworkCheckState> emit,
   ) async {
     await _connectivitySubscription?.cancel();
-    
+
     emit(NetworkChecking());
-    
+
     await Future.delayed(const Duration(seconds: 3));
-    
+
     try {
       _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
         List<ConnectivityResult> result,
       ) {
         add(NetworkChangedEvent(result));
       });
-      
+
       final List<ConnectivityResult> connectivityResult =
           await _connectivity.checkConnectivity();
       add(NetworkChangedEvent(connectivityResult));
@@ -86,9 +86,9 @@ class NetworkCheckBloc extends Bloc<NetworkCheckEvent, NetworkCheckState> {
     Emitter<NetworkCheckState> emit,
   ) async {
     emit(NetworkChecking());
-    
+
     await Future.delayed(const Duration(seconds: 3));
-    
+
     try {
       final result = await _connectivity.checkConnectivity();
       add(NetworkChangedEvent(result));
