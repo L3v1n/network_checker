@@ -46,15 +46,10 @@ class CheckNetButton extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const CheckNetPage()),
         );
       },
-      style: FilledButton.styleFrom(  
-        backgroundColor: Colors.black,
-      ),
+      style: FilledButton.styleFrom(backgroundColor: Colors.black),
       child: Text(
         data,
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
       ),
     );
   }

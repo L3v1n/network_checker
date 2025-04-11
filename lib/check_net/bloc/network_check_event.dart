@@ -1,15 +1,15 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-abstract class NetworkCheckEvent {}
+sealed class NetworkCheckEvent {}
 
-class CheckNetworkEvent extends NetworkCheckEvent {}
+final class CheckNetworkEvent extends NetworkCheckEvent {}
 
-class RecheckNetworkEvent extends NetworkCheckEvent {}
+final class RecheckNetworkEvent extends NetworkCheckEvent {}
 
-class NetworkChangedEvent extends NetworkCheckEvent {
+final class NetworkChangedEvent extends NetworkCheckEvent {
   final List<ConnectivityResult> connectionStatus;
 
   NetworkChangedEvent(this.connectionStatus);
 }
 
-class CancelNetworkCheckEvent extends NetworkCheckEvent {}
+final class CancelNetworkCheckEvent extends NetworkCheckEvent {}

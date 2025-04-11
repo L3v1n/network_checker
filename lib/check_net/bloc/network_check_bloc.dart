@@ -8,7 +8,7 @@ class NetworkCheckBloc extends Bloc<NetworkCheckEvent, NetworkCheckState> {
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
-  NetworkCheckBloc() : super(NetworkCheckState.initial) {
+  NetworkCheckBloc() : super(NetworkInitial()) {
     on<CheckNetworkEvent>(_onCheckNetwork);
     on<RecheckNetworkEvent>(_onRecheckNetwork);
     on<NetworkChangedEvent>(_onNetworkChanged);
@@ -18,59 +18,60 @@ class NetworkCheckBloc extends Bloc<NetworkCheckEvent, NetworkCheckState> {
   }
 
   Future<void> _onCheckNetwork(
-    CheckNetworkEvent event, 
-    Emitter<NetworkCheckState> emit
+    CheckNetworkEvent event,
+    Emitter<NetworkCheckState> emit,
   ) async {
-    emit(NetworkCheckState.initial);
-    
+    emit(NetworkInitial());
+
     try {
-      _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
-        (List<ConnectivityResult> result) {
-          add(NetworkChangedEvent(result));
-        }
-      );
+      _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
+        List<ConnectivityResult> result,
+      ) {
+        add(NetworkChangedEvent(result));
+      });
 
       await Future.delayed(const Duration(seconds: 3));
-      
-      final List<ConnectivityResult> connectivityResult = await _connectivity.checkConnectivity();
+
+      final List<ConnectivityResult> connectivityResult =
+          await _connectivity.checkConnectivity();
       add(NetworkChangedEvent(connectivityResult));
     } catch (e) {
-      emit(NetworkCheckState.noConnection);
+      emit(NetworkNoConnection());
     }
   }
 
   void _onNetworkChanged(
-    NetworkChangedEvent event, 
-    Emitter<NetworkCheckState> emit
+    NetworkChangedEvent event,
+    Emitter<NetworkCheckState> emit,
   ) {
     final List<ConnectivityResult> result = event.connectionStatus;
-    
+
     if (result.contains(ConnectivityResult.mobile)) {
-      emit(NetworkCheckState.connectedMobile);
+      emit(NetworkConnectedMobile());
     } else if (result.contains(ConnectivityResult.wifi)) {
-      emit(NetworkCheckState.connectedWifi);
+      emit(NetworkConnectedWifi());
     } else if (result.contains(ConnectivityResult.ethernet)) {
-      emit(NetworkCheckState.internetAccessAvailable);
+      emit(NetworkInternetAccessAvailable());
     } else if (result.contains(ConnectivityResult.vpn)) {
-      emit(NetworkCheckState.internetAccessAvailable);
+      emit(NetworkInternetAccessAvailable());
     } else if (result.contains(ConnectivityResult.none)) {
-      emit(NetworkCheckState.noConnection);
+      emit(NetworkNoConnection());
     } else {
-      emit(NetworkCheckState.noInternnetAccess);
+      emit(NetworkNoInternetAccess());
     }
   }
 
   void _onRecheckNetwork(
-    RecheckNetworkEvent event, 
-    Emitter<NetworkCheckState> emit
+    RecheckNetworkEvent event,
+    Emitter<NetworkCheckState> emit,
   ) {
-    emit(NetworkCheckState.initial);
+    emit(NetworkInitial());
     add(CheckNetworkEvent());
   }
 
   void _onCancelNetworkCheck(
-    CancelNetworkCheckEvent event, 
-    Emitter<NetworkCheckState> emit
+    CancelNetworkCheckEvent event,
+    Emitter<NetworkCheckState> emit,
   ) {
     _connectivitySubscription?.cancel();
   }

@@ -10,6 +10,7 @@ class CheckNetView extends StatefulWidget {
   @override
   State<CheckNetView> createState() => _CheckNetViewState();
 }
+
 class _CheckNetViewState extends State<CheckNetView> {
   @override
   Widget build(BuildContext context) {
@@ -22,11 +23,7 @@ class _CheckNetViewState extends State<CheckNetView> {
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: _buildNetworkStatusWidget(state)
-                      ),
-                    ],
+                    children: [Center(child: _buildNetworkStatusWidget(state))],
                   ),
                 ),
                 Padding(
@@ -42,63 +39,51 @@ class _CheckNetViewState extends State<CheckNetView> {
   }
 }
 
-
 Widget _buildActionButton(NetworkCheckState state, BuildContext context) {
-  if (state == NetworkCheckState.initial) {
-    return CancelButton();
-  } 
-  else if (state == NetworkCheckState.noConnection) {
-    return RetryButton();
-  }
-  else if (state == NetworkCheckState.connectedWifi || 
-            state == NetworkCheckState.connectedMobile || 
-            state == NetworkCheckState.internetAccessAvailable) {
-              
-    return Column(
-      children: [
-        RecheckButton(),
-        BackButton(),
-      ],
-    );
-  }
-  else {
-    return RetryButton();
+  if (state is NetworkNoConnection || state is NetworkNoInternetAccess) {
+    return const RetryButton();
+  } else if (state is NetworkConnectedWifi ||
+      state is NetworkConnectedMobile ||
+      state is NetworkInternetAccessAvailable) {
+    return Column(children: [RecheckButton(), BackButton()]);
+  } else {
+    return const CancelButton();
   }
 }
 
 Widget _buildNetworkStatusWidget(NetworkCheckState state) {
-  if (state == NetworkCheckState.initial) {
+  if (state is NetworkInitial) {
     return const ProgressIndicator();
   }
-  
+
   IconData iconData;
   Color color;
   String message;
 
   switch (state) {
-    case NetworkCheckState.connectedWifi:
+    case NetworkConnectedWifi():
       iconData = Icons.wifi;
       message = "Connected to WiFi";
       color = Colors.green;
       break;
-    case NetworkCheckState.connectedMobile:
+    case NetworkConnectedMobile():
       iconData = Icons.signal_cellular_alt_outlined;
-      message = "Connected to Mobile Data"; 
+      message = "Connected to Mobile Data";
       color = Colors.green;
       break;
-    case NetworkCheckState.internetAccessAvailable:
+    case NetworkInternetAccessAvailable():
       iconData = Icons.info_outline;
       message = "Internet Access Available";
       color = Colors.blue;
       break;
-    case NetworkCheckState.noConnection:
+    case NetworkNoConnection():
       iconData = Icons.signal_wifi_off_outlined;
       message = "No Connection";
       color = Colors.grey;
       break;
-    case NetworkCheckState.noInternnetAccess:
+    case NetworkNoInternetAccess():
       iconData = Icons.signal_wifi_statusbar_connected_no_internet_4_outlined;
-      message = "No Internet Access";  
+      message = "No Internet Access";
       color = Colors.orange;
       break;
     default:
@@ -135,15 +120,14 @@ class ProgressIndicator extends StatelessWidget {
         const CircularProgressIndicator(color: Colors.black),
         const SizedBox(height: 16),
         Text(
-          check, 
-          style: TextStyle(fontSize: 16,
-          fontWeight: FontWeight.bold,
-          ),
+          check,
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 }
+
 class RetryButton extends StatelessWidget {
   const RetryButton({super.key});
 
@@ -156,13 +140,8 @@ class RetryButton extends StatelessWidget {
         onPressed: () {
           context.read<NetworkCheckBloc>().add(CheckNetworkEvent());
         },
-        style: FilledButton.styleFrom(
-          backgroundColor: Colors.black,
-        ),
-        child: Text(
-          retry,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        style: FilledButton.styleFrom(backgroundColor: Colors.black),
+        child: Text(retry, style: TextStyle(fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -180,13 +159,8 @@ class RecheckButton extends StatelessWidget {
         onPressed: () {
           context.read<NetworkCheckBloc>().add(RecheckNetworkEvent());
         },
-        style: FilledButton.styleFrom(
-          backgroundColor: Colors.green,
-        ),
-        child: Text(
-          recheck,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        style: FilledButton.styleFrom(backgroundColor: Colors.green),
+        child: Text(recheck, style: TextStyle(fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -210,10 +184,7 @@ class CancelButton extends StatelessWidget {
           side: BorderSide(color: Colors.red),
           foregroundColor: Colors.red,
         ),
-        child: Text(
-          cancel,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        child: Text(cancel, style: TextStyle(fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -236,10 +207,7 @@ class BackButton extends StatelessWidget {
           side: BorderSide(color: Colors.red),
           foregroundColor: Colors.red,
         ),
-        child: Text(
-          back,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        child: Text(back, style: TextStyle(fontWeight: FontWeight.bold)),
       ),
     );
   }
