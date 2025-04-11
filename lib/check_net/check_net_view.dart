@@ -10,7 +10,6 @@ class CheckNetView extends StatefulWidget {
   @override
   State<CheckNetView> createState() => _CheckNetViewState();
 }
-
 class _CheckNetViewState extends State<CheckNetView> {
   @override
   Widget build(BuildContext context) {
@@ -43,6 +42,7 @@ class _CheckNetViewState extends State<CheckNetView> {
   }
 }
 
+
 Widget _buildActionButton(NetworkCheckState state, BuildContext context) {
   if (state == NetworkCheckState.initial) {
     return CancelButton();
@@ -53,7 +53,13 @@ Widget _buildActionButton(NetworkCheckState state, BuildContext context) {
   else if (state == NetworkCheckState.connectedWifi || 
             state == NetworkCheckState.connectedMobile || 
             state == NetworkCheckState.internetAccessAvailable) {
-    return RecheckButton();
+              
+    return Column(
+      children: [
+        RecheckButton(),
+        BackButton(),
+      ],
+    );
   }
   else {
     return RetryButton();
@@ -62,12 +68,12 @@ Widget _buildActionButton(NetworkCheckState state, BuildContext context) {
 
 Widget _buildNetworkStatusWidget(NetworkCheckState state) {
   if (state == NetworkCheckState.initial) {
-    return ProgressIndicator();
+    return const ProgressIndicator();
   }
   
   IconData iconData;
-  String message;
   Color color;
+  String message;
 
   switch (state) {
     case NetworkCheckState.connectedWifi:
@@ -77,7 +83,7 @@ Widget _buildNetworkStatusWidget(NetworkCheckState state) {
       break;
     case NetworkCheckState.connectedMobile:
       iconData = Icons.signal_cellular_alt_outlined;
-      message = "Connected to Mobile Data";
+      message = "Connected to Mobile Data"; 
       color = Colors.green;
       break;
     case NetworkCheckState.internetAccessAvailable:
@@ -92,7 +98,7 @@ Widget _buildNetworkStatusWidget(NetworkCheckState state) {
       break;
     case NetworkCheckState.noInternnetAccess:
       iconData = Icons.signal_wifi_statusbar_connected_no_internet_4_outlined;
-      message = "No Internet Access";
+      message = "No Internet Access";  
       color = Colors.orange;
       break;
     default:
@@ -146,13 +152,12 @@ class RetryButton extends StatelessWidget {
     final retry = 'Retry';
     return SizedBox(
       width: double.infinity,
-      child: OutlinedButton(
+      child: FilledButton(
         onPressed: () {
           context.read<NetworkCheckBloc>().add(CheckNetworkEvent());
         },
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Colors.grey),
-          foregroundColor: Colors.grey,
+        style: FilledButton.styleFrom(
+          backgroundColor: Colors.black,
         ),
         child: Text(
           retry,
@@ -171,13 +176,12 @@ class RecheckButton extends StatelessWidget {
     final recheck = 'Recheck Connection';
     return SizedBox(
       width: double.infinity,
-      child: OutlinedButton(
+      child: FilledButton(
         onPressed: () {
           context.read<NetworkCheckBloc>().add(RecheckNetworkEvent());
         },
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: Colors.green),
-          foregroundColor: Colors.green,
+        style: FilledButton.styleFrom(
+          backgroundColor: Colors.green,
         ),
         child: Text(
           recheck,
@@ -199,6 +203,7 @@ class CancelButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: () {
           context.read<NetworkCheckBloc>().add(CancelNetworkCheckEvent());
+          context.read<NetworkCheckBloc>().close();
           Navigator.pop(context);
         },
         style: OutlinedButton.styleFrom(
@@ -207,6 +212,32 @@ class CancelButton extends StatelessWidget {
         ),
         child: Text(
           cancel,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+}
+
+class BackButton extends StatelessWidget {
+  const BackButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final back = 'Go Back';
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: () {
+          context.read<NetworkCheckBloc>().close();
+          Navigator.pop(context);
+        },
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: Colors.red),
+          foregroundColor: Colors.red,
+        ),
+        child: Text(
+          back,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),

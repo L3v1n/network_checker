@@ -39,17 +39,20 @@ class CheckNetButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = 'Check My Network';
-    return ElevatedButton(
+    return FilledButton(
       onPressed: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const CheckNetPage()),
         );
       },
+      style: FilledButton.styleFrom(  
+        backgroundColor: Colors.black,
+      ),
       child: Text(
         data,
         style: TextStyle(
-          color: Colors.black,
+          color: Colors.white,
           fontWeight: FontWeight.bold,
         ),
       ),
