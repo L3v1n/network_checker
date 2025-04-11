@@ -52,7 +52,7 @@ Widget _buildActionButton(NetworkCheckState state, BuildContext context) {
 }
 
 Widget _buildNetworkStatusWidget(NetworkCheckState state) {
-  if (state is NetworkInitial) {
+  if (state is NetworkInitial || state is NetworkChecking) {
     return const ProgressIndicator();
   }
 

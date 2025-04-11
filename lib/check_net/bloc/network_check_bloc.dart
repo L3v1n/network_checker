@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'network_check_event.dart';
@@ -17,21 +18,32 @@ class NetworkCheckBloc extends Bloc<NetworkCheckEvent, NetworkCheckState> {
     add(CheckNetworkEvent());
   }
 
+  Future<bool> _checkInternetAccess() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    }
+  }
+
   Future<void> _onCheckNetwork(
     CheckNetworkEvent event,
     Emitter<NetworkCheckState> emit,
   ) async {
-    emit(NetworkInitial());
-
+    await _connectivitySubscription?.cancel();
+    
+    emit(NetworkChecking());
+    
+    await Future.delayed(const Duration(seconds: 3));
+    
     try {
       _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
         List<ConnectivityResult> result,
       ) {
         add(NetworkChangedEvent(result));
       });
-
-      await Future.delayed(const Duration(seconds: 3));
-
+      
       final List<ConnectivityResult> connectivityResult =
           await _connectivity.checkConnectivity();
       add(NetworkChangedEvent(connectivityResult));
@@ -40,33 +52,49 @@ class NetworkCheckBloc extends Bloc<NetworkCheckEvent, NetworkCheckState> {
     }
   }
 
-  void _onNetworkChanged(
+  Future<void> _onNetworkChanged(
     NetworkChangedEvent event,
     Emitter<NetworkCheckState> emit,
-  ) {
+  ) async {
     final List<ConnectivityResult> result = event.connectionStatus;
+
+    if (result.contains(ConnectivityResult.none)) {
+      emit(NetworkNoConnection());
+      return;
+    }
+
+    final hasInternet = await _checkInternetAccess();
+    if (!hasInternet) {
+      emit(NetworkNoInternetAccess());
+      return;
+    }
 
     if (result.contains(ConnectivityResult.mobile)) {
       emit(NetworkConnectedMobile());
     } else if (result.contains(ConnectivityResult.wifi)) {
       emit(NetworkConnectedWifi());
-    } else if (result.contains(ConnectivityResult.ethernet)) {
+    } else if (result.contains(ConnectivityResult.ethernet) ||
+        result.contains(ConnectivityResult.vpn)) {
       emit(NetworkInternetAccessAvailable());
-    } else if (result.contains(ConnectivityResult.vpn)) {
-      emit(NetworkInternetAccessAvailable());
-    } else if (result.contains(ConnectivityResult.none)) {
-      emit(NetworkNoConnection());
     } else {
-      emit(NetworkNoInternetAccess());
+      emit(NetworkInternetAccessAvailable());
     }
   }
 
-  void _onRecheckNetwork(
+  Future<void> _onRecheckNetwork(
     RecheckNetworkEvent event,
     Emitter<NetworkCheckState> emit,
-  ) {
-    emit(NetworkInitial());
-    add(CheckNetworkEvent());
+  ) async {
+    emit(NetworkChecking());
+    
+    await Future.delayed(const Duration(seconds: 3));
+    
+    try {
+      final result = await _connectivity.checkConnectivity();
+      add(NetworkChangedEvent(result));
+    } catch (_) {
+      emit(NetworkNoConnection());
+    }
   }
 
   void _onCancelNetworkCheck(
