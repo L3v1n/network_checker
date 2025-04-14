@@ -1,4 +1,4 @@
-# network_checker
+# Network Checker
 
 A Flutter application to check and monitor network connectivity. This project demonstrates the basics of Flutter development, including network status tracking and handling connectivity changes.
 
